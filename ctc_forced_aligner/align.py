@@ -29,6 +29,10 @@ def cli():
     )
 
     parser.add_argument(
+        "--preserve_split", help="whether to preserve the word splitting in the input text. Expects `--text_path` to be a file containing newline separated words", default=False
+    )
+
+    parser.add_argument(
         "--language",
         type=str,
         default=None,
@@ -146,7 +150,7 @@ def cli():
     text = "".join(line for line in lines).replace("\n", " ").strip()
 
     tokens_starred, text_starred = preprocess_text(
-        text, args.romanize, args.language, args.split_size, args.star_frequency
+        lines, text, args.romanize, args.language, args.split_size, args.star_frequency, args.preserve_split
     )
 
     segments, scores, blank_token = get_alignments(
