@@ -166,7 +166,6 @@ def get_uroman_tokens(norm_transcripts: list[str], iso=None):
     return uromans
 
 def _clean_text_lines(lines):
-    """去掉每行首尾空格，过滤空行，并用空格拼接成一个字符串"""
     return "".join(line for line in lines).replace("\n", " ").strip()
 
 
