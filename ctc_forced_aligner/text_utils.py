@@ -165,29 +165,39 @@ def get_uroman_tokens(norm_transcripts: list[str], iso=None):
 
     return uromans
 
+def _clean_text_lines(lines):
+    """去掉每行首尾空格，过滤空行，并用空格拼接成一个字符串"""
+    return "".join(line for line in lines).replace("\n", " ").strip()
+
 
 def split_text(text: str, split_size: str = "word"):
     if split_size == "sentence":
         from nltk.tokenize import PunktSentenceTokenizer
 
         sentence_checker = PunktSentenceTokenizer()
+        text = _clean_text_lines(text)
         sentences = sentence_checker.sentences_from_text(text)
         return sentences
 
     elif split_size == "word":
+        text = _clean_text_lines(text)
         return text.split()
     elif split_size == "char":
+        text = _clean_text_lines(text)
         return list(text)
+    elif split_size == "line":
+        return [s.rstrip("\n") for s in text]
 
 
 def preprocess_text(
-    lines, text, romanize, language, split_size="word", star_frequency="segment", preserve_split=False
+    text, romanize, language, split_size="word", star_frequency="segment"
 ):
     assert split_size in [
         "sentence",
         "word",
         "char",
-    ], "Split size must be sentence, word, or char"
+        "line",
+    ], "Split size must be sentence, word, or char, line"
     assert star_frequency in [
         "segment",
         "edges",
@@ -195,10 +205,7 @@ def preprocess_text(
     if language in ["jpn", "chi"]:
         split_size = "char"
     
-    if preserve_split:
-        text_split = [s.rstrip("\n") for s in lines]
-    else:
-        text_split = split_text(text, split_size)
+    text_split = split_text(text, split_size)
     norm_text = [text_normalize(line.strip(), language) for line in text_split]
 
     if romanize:

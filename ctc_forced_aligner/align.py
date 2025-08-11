@@ -29,10 +29,6 @@ def cli():
     )
 
     parser.add_argument(
-        "--preserve_split", help="whether to preserve the word splitting in the input text. Expects `--text_path` to be a file containing newline separated words", default=False
-    )
-
-    parser.add_argument(
         "--language",
         type=str,
         default=None,
@@ -56,7 +52,7 @@ def cli():
         "--split_size",
         type=str,
         default="word",
-        choices=["sentence", "word", "char"],
+        choices=["sentence", "word", "char", "line"],
         help="Whether to align on a sentence, word, or character level.",
     )
     parser.add_argument(
@@ -146,11 +142,11 @@ def cli():
     )
 
     with open(args.text_path, "r") as f:
-        lines = f.readlines()
-    text = "".join(line for line in lines).replace("\n", " ").strip()
+        text = f.readlines()
+    #text = "".join(line for line in lines).replace("\n", " ").strip()
 
     tokens_starred, text_starred = preprocess_text(
-        lines, text, args.romanize, args.language, args.split_size, args.star_frequency, args.preserve_split
+        text, args.romanize, args.language, args.split_size, args.star_frequency
     )
 
     segments, scores, blank_token = get_alignments(
