@@ -45,11 +45,11 @@ This Python package provides an efficient way to perform forced alignment betwee
 
 #### Latest version from GitHub
 ```bash
-pip install git+https://github.com/MahmoudAshraf97/ctc-forced-aligner.git
+pip install git+https://github.com/moeelf/ctc-forced-aligner.git
 ```
 #### Installing locally from source
 ```bash
-git clone https://github.com/MahmoudAshraf97/ctc-forced-aligner.git
+git clone https://github.com/moeelf/ctc-forced-aligner.git
 cd ctc-forced-aligner
 pip install -e .[dev]
 ```
@@ -72,7 +72,7 @@ ctc-forced-aligner --audio_path "path/to/audio.wav" --text_path "path/to/text.tx
 | `--text_path` | Path to the text file | Required |
 | `--language` | Language in ISO 639-3 code | Required |
 | `--romanize` | Enable romanization for non-latin scripts or for multilingual models regardless of the language, required when using the default model| False |
-| `--split_size` | Alignment granularity: "sentence", "word", or "char" | "word" |
+| `--split_size` | Alignment granularity: "sentence", "word", or "char" | "word" | "line" |
 | `--star_frequency` | Frequency of `<star>` token: "segment" or "edges" | "edges" |
 | `--merge_threshold` | Merge threshold for segment merging | 0.00 |
 | `--alignment_model` | Name of the alignment model | [MahmoudAshraf/mms-300m-1130-forced-aligner](https://huggingface.co/MahmoudAshraf/mms-300m-1130-forced-aligner) |
@@ -82,7 +82,6 @@ ctc-forced-aligner --audio_path "path/to/audio.wav" --text_path "path/to/text.tx
 | `--context_size` | Overlap between chunks in seconds | 2 |
 | `--attn_implementation` | Attention implementation | "eager" |
 | `--device` | Device to use for inference: "cuda" or "cpu" | "cuda" if available, else "cpu" |
-| `--preserve_split` | whether to preserve the word splitting in the input text. Expects `--text_path` to be a file containing newline separated words | False |
 
 ### Examples
 
