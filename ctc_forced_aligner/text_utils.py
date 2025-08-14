@@ -185,8 +185,12 @@ def split_text(text: str, split_size: str = "word"):
         text = _clean_text_lines(text)
         return list(text)
     elif split_size == "line":
-        lines = text.splitlines()
-        return [line.strip() for line in lines if line.strip()]
+        if isinstance(text, list):
+            # 如果传进来已经是多行 list，就直接 strip 清理
+            return [str(line).strip() for line in text if str(line).strip()]
+        else:
+            # 否则当作字符串来按行切
+            return [line.strip() for line in text.splitlines() if line.strip()]
 
 
 def preprocess_text(
