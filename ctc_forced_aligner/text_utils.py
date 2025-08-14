@@ -185,7 +185,8 @@ def split_text(text: str, split_size: str = "word"):
         text = _clean_text_lines(text)
         return list(text)
     elif split_size == "line":
-        return [s.rstrip("\n") for s in text]
+        lines = text.splitlines()
+        return [line.strip() for line in lines if line.strip()]
 
 
 def preprocess_text(
