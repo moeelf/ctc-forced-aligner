@@ -185,12 +185,7 @@ def split_text(text: str, split_size: str = "word"):
         text = _clean_text_lines(text)
         return list(text)
     elif split_size == "line":
-        if isinstance(text, list):
-            # 如果传进来已经是多行 list，就直接 strip 清理
-            return [str(line).strip() for line in text if str(line).strip()]
-        else:
-            # 否则当作字符串来按行切
-            return [line.strip() for line in text.splitlines() if line.strip()]
+        return [s.rstrip("\n") for s in text]
 
 
 def preprocess_text(
@@ -254,17 +249,7 @@ def postprocess_results(
             continue
         span = spans[i]
         seg_start_idx = span[0].start
-        # 找到该行最后一个非空的 token 作为 end
-        seg_end_idx = None
-        for token_span in reversed(span):
-            token_text = token_span.text if hasattr(token_span, "text") else None
-            if token_text and token_text.strip() and token_text != "<star>":
-                seg_end_idx = token_span.end
-                break
-
-        # 如果没找到非空 token，就用原来的最后一个 span
-        if seg_end_idx is None:
-            seg_end_idx = span[-1].end
+        seg_end_idx = span[-1].end
 
         audio_start_sec = seg_start_idx * (stride) / 1000
         audio_end_sec = seg_end_idx * (stride) / 1000
