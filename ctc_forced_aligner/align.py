@@ -142,8 +142,11 @@ def cli():
     )
 
     with open(args.text_path, "r") as f:
-        text = f.readlines()
-    #text = "".join(line for line in lines).replace("\n", " ").strip()
+        lines = f.readlines()
+    if args.split_size == "line":
+        text = [line.rstrip("\n") for line in lines]
+    else:
+        text = "".join(line for line in lines).replace("\n", " ").strip()
 
     tokens_starred, text_starred = preprocess_text(
         text, args.romanize, args.language, args.split_size, args.star_frequency

@@ -165,27 +165,21 @@ def get_uroman_tokens(norm_transcripts: list[str], iso=None):
 
     return uromans
 
-def _clean_text_lines(lines):
-    return "".join(line for line in lines).replace("\n", " ").strip()
-
 
 def split_text(text: str, split_size: str = "word"):
     if split_size == "sentence":
         from nltk.tokenize import PunktSentenceTokenizer
 
         sentence_checker = PunktSentenceTokenizer()
-        text = _clean_text_lines(text)
         sentences = sentence_checker.sentences_from_text(text)
         return sentences
 
     elif split_size == "word":
-        text = _clean_text_lines(text)
         return text.split()
     elif split_size == "char":
-        text = _clean_text_lines(text)
         return list(text)
     elif split_size == "line":
-        return [s.rstrip("\n") for s in text]
+        return text
 
 
 def preprocess_text(
