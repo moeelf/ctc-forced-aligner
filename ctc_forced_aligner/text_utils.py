@@ -212,9 +212,13 @@ def preprocess_text(
     if star_frequency == "segment":
         tokens_starred = []
         [tokens_starred.extend(["<star>", token]) for token in tokens]
+        if tokens_starred[-1] != "<star>":
+            tokens_starred.append("<star>")
 
         text_starred = []
         [text_starred.extend(["<star>", chunk]) for chunk in text_split]
+        if text_starred[-1] != "<star>":
+            text_starred.append("<star>")
 
     elif star_frequency == "edges":
         tokens_starred = ["<star>"] + tokens + ["<star>"]
