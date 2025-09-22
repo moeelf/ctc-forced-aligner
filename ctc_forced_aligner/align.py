@@ -12,7 +12,7 @@ from .alignment_utils import (
 )
 from .text_utils import postprocess_results, preprocess_text
 
-DTYPES = {
+TORCH_DTYPES = {
     "bfloat16": torch.bfloat16,
     "float16": torch.float16,
     "float32": torch.float32,
@@ -133,7 +133,7 @@ def cli():
         args.device,
         args.alignment_model,
         args.attn_implementation,
-        DTYPES[args.compute_dtype],
+        TORCH_DTYPES[args.compute_dtype],
     )
 
     audio_waveform = load_audio(args.audio_path, model.dtype, model.device)
