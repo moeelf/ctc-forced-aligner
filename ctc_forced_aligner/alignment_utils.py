@@ -273,11 +273,6 @@ def load_alignment_model(
         else:
             attn_implementation = "sdpa"
 
-    # Build kwargs we want to try passing to from_pretrained
-    kwargs = {}
-    if attn_implementation is not None:
-        kwargs["attn_implementation"] = attn_implementation
-
     model = (
         AutoModelForCTC.from_pretrained(
             model_path,
