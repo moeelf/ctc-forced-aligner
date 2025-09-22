@@ -129,7 +129,7 @@ def cli():
     )
     args = parser.parse_args()
 
-    model, tokenizer, model_dtype, model_device = load_alignment_model(
+    model, tokenizer = load_alignment_model(
         args.device,
         args.alignment_model,
         args.attn_implementation,
