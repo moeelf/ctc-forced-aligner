@@ -273,15 +273,39 @@ def load_alignment_model(
         else:
             attn_implementation = "sdpa"
 
-    model = (
-        AutoModelForCTC.from_pretrained(
-            model_path,
-            attn_implementation=attn_implementation,
-            torch_dtype=dtype,
-        )
-        .to(device)
-        .eval()
-    )
+    # Build kwargs we want to try passing to from_pretrained
+    kwargs = {}
+    if attn_implementation is not None:
+        kwargs["attn_implementation"] = attn_implementation
+
+    # Try new `dtype=` first, fallback to `torch_dtype=` if needed.
+    model = None
+    try:
+        model = AutoModelForCTC.from_pretrained(model_path, dtype=dtype, **kwargs)
+    except TypeError:
+        # Some older HF versions expect `torch_dtype` or don't support attn_implementation kw.
+        try:
+            model = AutoModelForCTC.from_pretrained(model_path, torch_dtype=dtype, **kwargs)
+        except TypeError:
+            # last-resort: remove attn_implementation and retry both variants
+            kwargs.pop("attn_implementation", None)
+            try:
+                model = AutoModelForCTC.from_pretrained(model_path, dtype=dtype, **kwargs)
+            except TypeError:
+                model = AutoModelForCTC.from_pretrained(model_path, torch_dtype=dtype, **kwargs)
+
+    model = model.to(device).eval()
+
+    # Determine model_dtype in a safe way (without assigning to model.dtype)
+    try:
+        model_dtype = dtype if dtype is not None else next(model.parameters()).dtype
+    except StopIteration:
+        model_dtype = dtype
+
+    # device string (e.g., "cuda" or "cpu") — keep as returned value
+    device_str = device
+
     tokenizer = AutoTokenizer.from_pretrained(model_path)
 
-    return model, tokenizer
+    # Return model, tokenizer, plus explicit dtype and device string for callers to use.
+    return model, tokenizer, model_dtype, device_str
