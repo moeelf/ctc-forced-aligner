@@ -143,7 +143,7 @@ special_isos_uroman = [
 
 def normalize_uroman(text):
     text = text.lower()
-    text = re.sub("([^a-z' ])", " ", text)
+    text = re.sub("([^a-z0-9' ])", " ", text)
     text = re.sub(" +", " ", text)
     return text.strip()
 
