@@ -258,7 +258,7 @@ def get_alignments(
                 joined = "".join(dropped)
             except Exception:
                 joined = " ".join(dropped)
-            # 使用传入的 original_groups（若存在且长度够），否则回退到 romanized
+            # 使用传入的 raw_text_segments（若存在且长度够），否则回退到 romanized
             if raw_text_segments is not None and gi < len(raw_text_segments):
                 orig_display = raw_text_segments[gi]
             else:
