@@ -225,6 +225,7 @@ def get_alignments(
     emissions: torch.Tensor,
     tokens: list,
     tokenizer,
+    raw_text_segments: Optional[list] = None,  # <-- 新增可选参数
 ):
     assert len(tokens) > 0, "Empty transcript"
 
@@ -232,13 +233,50 @@ def get_alignments(
     dictionary = {k.lower(): v for k, v in dictionary.items()}
     dictionary["<star>"] = len(dictionary)
 
-    # Force Alignment
-    token_indices = [
-        dictionary[c] for c in " ".join(tokens).split(" ") if c in dictionary
-    ]
+    # ---- 按原有分组过滤（保留分组边界），构造 tokens_for_alignment ----
+    groups = []
+    dropped_info = []  # 记录被丢弃的子 token： (group_index, dropped_list, romanized_group)
+    for gi, g in enumerate(tokens):
+        romanized_group = g  # 这仍然是 tokens 列表里的（通常是罗马化后的）
+        parts = g.split(" ")
+        filtered = []
+        dropped = []
+        for p in parts:
+            if p in dictionary:
+                filtered.append(p)
+            else:
+                dropped.append(p)
+        groups.append(" ".join(filtered))  # 可能是 ""（表示这一组全部被丢弃）
+        if dropped:
+            dropped_info.append((gi, dropped, romanized_group))
+
+    # 打印被丢弃项时优先显示 raw_text_segments（如果 caller 传了）
+    if dropped_info:
+        print("⚠️ 注意：以下 token 子项在 tokenizer 词表中未找到并已被忽略（索引, tokens, joined, original_group）：")
+        for gi, dropped, romanized in dropped_info[:200]:
+            try:
+                joined = "".join(dropped)
+            except Exception:
+                joined = " ".join(dropped)
+            # 使用传入的 original_groups（若存在且长度够），否则回退到 romanized
+            if raw_text_segments is not None and gi < len(raw_text_segments):
+                orig_display = raw_text_segments[gi]
+            else:
+                orig_display = romanized
+            print(f"  group {gi}: {dropped} -> joined: '{joined}' ; original_group: '{orig_display}'")
+        if len(dropped_info) > 200:
+            print(f"  ... 此处仅列出前 200 项，共 {len(dropped_info)} 项被丢弃")
+
+    # 构造 target indices（只使用在词表中的 token）
+    token_sequence = " ".join(groups).split(" ")
+    token_indices = [dictionary[c] for c in token_sequence if c in dictionary]
+
+    if len(token_indices) == 0:
+        raise ValueError("After filtering, no valid tokens remain for forced alignment. Check tokenizer / preprocess_text settings.")
 
     blank_id = dictionary.get("<blank>", tokenizer.pad_token_id)
 
+    # Force Alignment
     if not emissions.is_cpu:
         emissions = emissions.cpu()
     targets = np.asarray([token_indices], dtype=np.int64)
@@ -252,7 +290,9 @@ def get_alignments(
 
     idx_to_token_map = {v: k for k, v in dictionary.items()}
     segments = merge_repeats(path, idx_to_token_map)
-    return segments, scores, idx_to_token_map[blank_id]
+
+    # 返回：segments, scores, blank_token, 以及按原分组但已过滤的 tokens（groups）
+    return segments, scores, idx_to_token_map[blank_id], groups
 
 
 def load_alignment_model(
