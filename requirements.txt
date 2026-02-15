@@ -1,7 +1,7 @@
 uroman
 nltk
-torch=2.8.0
-torchaudio=2.8.0
+torch==2.8.0
+torchaudio==2.8.0
 transformers>=4.34
 Unidecode
 soundfile
